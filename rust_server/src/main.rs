@@ -1,7 +1,8 @@
 use std::{fs::{self, File}, io::Write};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json;
 use std::io;
+use std::process;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct User {
@@ -15,6 +16,25 @@ struct User {
 
 fn main() {
     let path = "./json_database/db.json";
+    loop {
+        print!("> ");
+        io::stdout().flush().unwrap();
+        let mut  input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        input  = input.trim().to_lowercase();
+
+        match  input.as_str() {
+         "write"=>add_user(path),
+         "read"=>read(path),
+         "" => println!("{}",""),
+         "clear"=>clear(),
+         "exit"=>std::process::exit(0),
+         _ => println!("Invalid command")
+        };
+    
+       
+
+    }
 }
 
 fn write(path:&str,user:User){
@@ -35,6 +55,7 @@ fn write(path:&str,user:User){
             file.write_all(json_data.as_bytes()).unwrap();
         }
     }
+    println!("> User saved !")
     
 
 }
@@ -55,7 +76,13 @@ fn read(path: &str){
 }
 
 fn fetch_user(content : &String)-> Vec<User>{
-    let users : Vec<User> = serde_json::from_str(&content).unwrap();
+    let path = "./json_database/db.json";
+    let data = fs::read_to_string(path).unwrap();
+    if data.len()==0{
+       let users:Vec<User>= vec![];
+       return users;
+    }
+    let users= serde_json::from_str(&content).unwrap();
     users
     
 }
@@ -69,16 +96,34 @@ fn pretty_print(user:&User){
     println!("----------------------------------------------------")
 }
 
-// Will be using code like this to make our custom command line 
+fn clear(){
+    process::Command::new("clear").status().unwrap();
+}
 
-// loop {
-//     print!("Enter your command (type 'exit' to quit): ");
-//     let mut input = String::new();
-//     io::stdin().read_line(&mut input).unwrap();
-//     let input = input.trim(); // Remove any extra spaces/newlines
-//     if input == "exit" {
-//         println!("Exiting program...");
-//         break;
-//     }
-//     println!("You entered: {}", input);
-// }
+fn add_user(path: &str){
+    let name = get_user_input(String::from("Enter user name"));
+    let surname = get_user_input(String::from("Enter user surname"));
+    let city = get_user_input(String::from("Enter user city"));
+    let state = get_user_input(String::from("Enter user state"));
+    let country = get_user_input(String::from("Enter user country"));
+    let user = User{
+        name:name,
+        surname:surname,
+        city:city,
+        state:state,
+        country:country
+    };
+    write(path, user);
+
+}
+
+
+fn get_user_input(question:String)->String{
+    print!("> {}: ",question);
+    io::stdout().flush().unwrap();
+    let mut user_data = String::new();
+    io::stdin().read_line(&mut user_data).unwrap();
+    String::from(user_data.trim())
+
+
+}
