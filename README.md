@@ -1,1 +1,1 @@
-# learn_rust_with_server
+# learn_rust_with_cli
