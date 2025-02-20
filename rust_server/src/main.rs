@@ -16,6 +16,7 @@ struct User {
 
 #[tokio::main]
 async fn main()->Result<(),Box<dyn Error>> {
+    println!("Welcom to our CLI services");
      dotenv().ok();
     let database_url = env::var("DB_URL").expect(
         "DATABASE_URL must be set");
